@@ -1,0 +1,36 @@
+drop table AffectationEquipage;
+drop table AffectationPilote;
+drop table Compatible;
+drop table Former ;
+drop table  Remplir;
+drop table  Cibler;
+drop table  Planete;
+drop table Mission;
+drop table VaisseauCombat;
+drop table  VaisseauTransport;
+drop table  Milieu;
+drop table  Galaxie;
+drop table   Equipage;
+drop table  Vaisseau;
+drop table  Pilote;
+drop table  TypeMission;
+--start TPEspace.sql
+--select * from Vaisseau;
+
+create table TypeMission( TypeM varchar (50) primary key);
+create table Pilote(CodePilote int primary key, Nom varchar (50), Prenom varchar (50), Age int check (Age >= 18 and  Age <= 110));
+create table Vaisseau( CodeVaisseau int primary key, RayonAction real check ( RayonAction >= 0),NbPilote int check ( NbPilote >= 0),VitesseMax real check ( VitesseMax >= 0));
+create table Equipage(CodeEqPilote int primary key, Effectif int check ( Effectif >=0));
+create table Galaxie (CodeGalaxie int primary key, NomGalaxie varchar(50), Distance int check (Distance >= 0));
+create table Milieu (Composition varchar (50) primary key check (Composition in (ACIDE,BASIQUE,NEUTRE)) );
+create table VaisseauTransport(CodeVaisseau  int primary key references Vaisseau (CodeVaisseau), Capacite real check (Capacite >=0),RayonAction real check ( RayonAction >= 0),NbPilote int check ( NbPilote >= 0),VitesseMax real check ( VitesseMax >= 0)); 
+create table VaisseauCombat(CodeVaisseau int primary key references Vaisseau (CodeVaisseau),EquipMin int check (EquipMin>=0), EquipMax int check (EquipMax>=0), RayonAction real check ( RayonAction >= 0),NbPilote int check ( NbPilote >= 0),VitesseMax real check ( VitesseMax >= 0));
+create table Mission(CodeMission int primary key, DateMission date, NbVaisseau int check (NbVaisseau >=0),RayonEngagement real check (RayonEngagement >=0), CodePilote int references Pilote(CodePilote));
+create table Planete(CodePlanete int, CodeGalaxie int references Galaxie(CodeGalaxie), primary key (CodePlanete,CodeGalaxie),NomPlanete varchar(50),VitesseLiberation real check (VitesseLiberation >=0), EstSoumise int check (EstSoumise in (0,1)), Composition varchar (50));
+create table Cibler(CodeMission int primary key references Mission(CodeMission),CodePlanete int ,CodeGalaxie int , foreign key(CodeGalaxie,CodePlanete) references Planete (CodePlanete,CodeGalaxie));
+create table Remplir(TypeM varchar (50) references TypeMission(TypeM), CodeEqPilote int references Equipage(CodeEqPilote), primary key ( TypeM,CodeEqPilote));
+create table Former(TypeM varchar (50) references TypeMission(TypeM), CodePilote int references Pilote(CodePilote), primary key ( TypeM,CodePilote));
+create table Piloter(CodePilote int references Pilote(CodePilote),CodeVaisseau int references Vaisseau(CodeVaisseau), primary key (CodeVaisseau,CodePilote));
+create table Compatible(Composition varchar (50) references Milieu(Composition),CodeVaisseau int references Vaisseau(CodeVaisseau), primary key (Composition,codeVaisseau));
+create table AffectationPilote(CodePilote int references Pilote(CodePilote),CodeMission int references Mission(CodeMission),CodeVaisseau int references Vaisseau(CodeVaisseau), primary key (CodeVaisseau,CodePilote,CodeMission));
+create table AffectationEquipage(CodeEqPilote int references Equipage(CodeEqPilote),CodeMission int references Mission(CodeMission),CodeVaisseau int references Vaisseau(CodeVaisseau), primary key (CodeVaisseau,CodeEqPilote,CodeMission));
